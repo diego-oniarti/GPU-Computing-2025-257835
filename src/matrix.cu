@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "common.h"
+#include "matrix.h"
 
 /*
  * Generates a sparse matrix where each element has a
@@ -44,38 +44,18 @@ int count_non_zeros(data_t *mat, int rows, int cols) {
 }
 
 /**
- * Populates a COO matrix with the values from a matrix
- */
-void mat_to_COO(MAT_COO *coo, data_t *mat, int cols, int rows) {
-    int nvals  = count_non_zeros(mat, rows, cols);
-    coo->nvals = nvals;
-    coo->vals  = (data_t*)malloc(sizeof(data_t) * nvals);
-    coo->xs    = (int*)malloc(sizeof(int) * nvals);
-    coo->ys    = (int*)malloc(sizeof(int) * nvals);
-    int n=0;
-    for (int y=0; y<rows && n<nvals; y++) {
-        for (int x=0; x<cols && n<nvals; x++) {
-            if (mat[y*cols+x]!=0) {
-                coo->vals[n] = mat[y*cols+x];
-                coo->xs[n] = x;
-                coo->ys[n] = y;
-                n++;
-            }
-        }
-    }
-}
-
-/**
  * Populates a CSR matrix with the values from a matrix
  */
 void mat_to_CSR(MAT_CSR *csr, data_t *mat, int cols, int rows) {
     int nvals  = count_non_zeros(mat, rows, cols);
     csr->nvals = nvals;
+    csr->nrows = rows;
     csr->vals  = (data_t*)malloc(sizeof(data_t) * nvals);
     csr->xs    = (int*)malloc(sizeof(int) * nvals);
     csr->ys    = (int*)malloc(sizeof(int) * (rows+1));
+    csr->ys[0]=0;
     int n=0;
-    for (int y=0; y<rows && n<nvals; y++) {
+    for (int y=0; y<rows; y++) {
         for (int x=0; x<cols && n<nvals; x++) {
             if (mat[y*cols+x]!=0) {
                 csr->vals[n] = mat[y*cols+x];
@@ -92,9 +72,26 @@ void destroy_CSR(MAT_CSR *csr) {
     free(csr->xs);
     free(csr->ys);
 }
-void destroy_COO(MAT_COO *coo) {
-    free(coo->vals);
-    free(coo->xs);
-    free(coo->ys);
+
+void print_array(data_t *arr, int n) {
+    for (int i=0; i<n; i++) {
+        printf("%.2f ", arr[i]);
+    }
+    printf("\n");
 }
 
+void print_array_i(int *arr, int n) {
+    for (int i=0; i<n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+void print_CSR(MAT_CSR *csr) {
+    printf("Vals:  |");
+    print_array(csr->vals, csr->nvals);
+    printf("Xs:    |");
+    print_array_i(csr->xs, csr->nvals);
+    printf("Ys:    |");
+    print_array_i(csr->ys, csr->nrows+1);
+}
