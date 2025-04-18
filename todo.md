@@ -2,7 +2,7 @@
 1. CPU
         - [x] CSR
 2. GPU
-        - [ ] CSR 1 thread per row
+        - [x] CSR 1 thread per row
         - [ ] CSR 1 thread per val
                 - [ ] add thread grid?
         - [ ] add shared mem

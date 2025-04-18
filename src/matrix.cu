@@ -50,6 +50,7 @@ void mat_to_CSR(MAT_CSR *csr, data_t *mat, int cols, int rows) {
     int nvals  = count_non_zeros(mat, rows, cols);
     csr->nvals = nvals;
     csr->nrows = rows;
+    csr->ncols = cols;
     csr->vals  = (data_t*)malloc(sizeof(data_t) * nvals);
     csr->xs    = (int*)malloc(sizeof(int) * nvals);
     csr->ys    = (int*)malloc(sizeof(int) * (rows+1));

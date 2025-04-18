@@ -2,10 +2,11 @@ CC = nvcc
 CFLAGS = -I./src -lm --gpu-architecture=sm_80 -m64
 
 MODULES := $(wildcard src/*.cu)
+HEADERS := $(wildcard src/*.h)
 
-bin/main: main.cu $(MODULES)
+bin/main: main.cu $(MODULES) $(HEADERS)
 	@mkdir -p bin
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $< $(MODULES)
 
 .PHONY: clean
 clean:
