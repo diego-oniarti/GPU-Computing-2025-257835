@@ -12,9 +12,12 @@ typedef struct {
 
 #define PRERUNS 3
 #define RUNS 10
-#define COLS 2000
-#define ROWS 3000
+#define COLS 200000
+#define ROWS 300000
 
+// print the results
 #define DOPRINT false
+// print the individual times for each run
+#define DOPRINTSINGLE false
 
 #endif

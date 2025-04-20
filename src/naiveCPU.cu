@@ -26,7 +26,7 @@ data_t* multiply_naive(MAT_CSR *mat, data_t *vec) {
 
         gettimeofday(&temp_2, (struct timezone*)0);
         double time = ((temp_2.tv_sec-temp_1.tv_sec)*1.e6+(temp_2.tv_usec-temp_1.tv_usec));
-        printf("--- Elapsed time: %lf\n", time);
+        if (DOPRINTSINGLE) printf("--- Elapsed time: %lf\n", time);
         if (r>=0) {
             times[r] = time;
         }
@@ -37,7 +37,7 @@ data_t* multiply_naive(MAT_CSR *mat, data_t *vec) {
         }
     }
 
-    print_timing(times, RUNS);
+    print_timing(times, RUNS, mat->nvals*2);
     return result;
 }
 

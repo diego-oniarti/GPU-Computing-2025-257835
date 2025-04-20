@@ -27,9 +27,9 @@ double derivation(double *times, int n) {
 }
 
 
-void print_timing(double *times, int n) {
-    // printf("               Mean: %.3f\n     Geometric mean: %.3f\nStandard derivation: %.3f\n",
-    //         mean(times, n), geom_mean(times, n), derivation(times, n));
-    printf("               Mean: %.3f ms\nStandard derivation: %.3f ms\n",
-            mean(times, n), derivation(times, n));
+void print_timing(double *times, int n, int FLO) {
+    double  avg = mean(times, n);
+    printf("               Mean: %.3f ms\n", avg);
+    printf("Standard derivation: %.3f ms\n", derivation(times, n));
+    printf("              FLOPs: %.3f\n", (double)FLO/avg);
 }

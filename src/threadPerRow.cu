@@ -18,14 +18,13 @@ void mult_per_row_kelner(data_t *vals, int *xs, int *ys,
     }
 }
 
-data_t* mult_per_row(MAT_CSR *csr, data_t *ones) {
-    cudaDeviceProp prop;
-    cudaGetDeviceProperties(&prop, 0);
-    int maxThreads = prop.maxThreadsPerBlock;
-
+data_t* mult_per_row(MAT_CSR *csr, data_t *ones, int maxThreads) {
+    // Create as many threads as matrix rows
     int n_threads = csr->nrows;
+    // Enough blocks to accomodate the threads
     int n_blocks = ceil((float)n_threads / maxThreads);
 
+    // Put the data into managed memory to make it accessible by the GPU
     data_t *vals, *vec, *ret;
     int *xs, *ys;
     cudaMallocManaged(&vals, sizeof(data_t)*csr->nvals);
@@ -38,6 +37,7 @@ data_t* mult_per_row(MAT_CSR *csr, data_t *ones) {
     cudaMallocManaged(&ys, sizeof(data_t)*(ROWS+1));
     cudaMemcpy(ys, csr->ys, sizeof(data_t)*(ROWS+1), cudaMemcpyHostToDevice);
 
+    // Events and array for timing
     double times[RUNS];
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
@@ -51,12 +51,12 @@ data_t* mult_per_row(MAT_CSR *csr, data_t *ones) {
         cudaEventElapsedTime(&milliseconds, start, stop);
         cudaDeviceSynchronize();
 
-        printf("--- Elapsed time: %lf\n", milliseconds);
-        if (r>=0) {
+        if (DOPRINTSINGLE) printf("--- Elapsed time: %lf\n", milliseconds);
+        if (r>=0) { // Preruns
             times[r] = milliseconds;
         }
     }
-    print_timing(times, RUNS);
+    print_timing(times, RUNS, csr->nvals*2);
 
     cudaFree(vals);
     cudaFree(vec);
