@@ -5,7 +5,9 @@
     - [x] CSR 1 thread per row
     - [-] CSR 1 thread per val
     - [-] CSR 1 warp per row
-    - [ ] add shared mem
+    - [x] add shared mem
+        - [x] for the buffer
+        - [ ] for the vector
     - [ ] add thread grid?
 
 # Data
@@ -41,6 +43,24 @@ boundaries was too difficult.
 ## warp per row
 A more structured approach is to assign each row to a warp. This solves the
 synchronization problem encountered in the previous case, since we can define each warp
-to be fully contained in the same block. 
+to be fully contained in the same block.
 Forthermore, each warp executes in lock-step, meaning that each row can execute
 independently regardles of the number of elements contained
+
+From this point on I started noticing some small errors in the results, which I hope can
+be attributed to rounding and floating point precision.
+Some facts that make me believe this:
+- The errors only manifest when the matrix is sufficiently big. This could mean a certain
+  amount of operations is needed before the errors build up
+- The errors become smaller when moving from flaot to double, and vanish when moving to
+  int
+
+## Warp per row with shared memory
+There are two data structures that are accessed frequently and in a shared manner by
+the threads:
+1. The vector
+2. The buffer for the sum
+Hence, these should be stored in shared memory.
+
+The elements in the matrix are only accessed once, so storing them would be a waste of
+time.

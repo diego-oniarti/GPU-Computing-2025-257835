@@ -40,7 +40,7 @@ void mult_warp_row_kelner(data_t *vals, int *xs, int *ys,
         }
     }
 
-    if (friend_id==0) {
+    if (friend_id==0 && row<rows) {
         ret[row] = buffer[tid];
     }
 }
@@ -60,8 +60,8 @@ data_t* mult_warp_row(MAT_CSR *csr, data_t *ones, int threads_per_block) {
     cudaMallocManaged(&ret, sizeof(data_t)*ROWS);
     cudaMallocManaged(&xs, sizeof(int)*csr->nvals);
     cudaMemcpy(xs, csr->xs, sizeof(int)*csr->nvals, cudaMemcpyHostToDevice);
-    cudaMallocManaged(&ys, sizeof(data_t)*(ROWS+1));
-    cudaMemcpy(ys, csr->ys, sizeof(data_t)*(ROWS+1), cudaMemcpyHostToDevice);
+    cudaMallocManaged(&ys, sizeof(int)*(ROWS+1));
+    cudaMemcpy(ys, csr->ys, sizeof(int)*(ROWS+1), cudaMemcpyHostToDevice);
 
     data_t *buffer; // This should be shared memory
     cudaMallocManaged(&buffer, sizeof(data_t) * n_threads); // Can be not managed

@@ -1,28 +1,55 @@
 #include "common.h"
 #include "timing.h"
 #include "matrix.h"
+#include "warpRowShared.h"
 #include <stdio.h>
 
 __global__
-void mult_per_row_kelner(data_t *vals, int *xs, int *ys, 
+void kelner(data_t *vals, int *xs, int *ys, 
         data_t *vec, data_t *ret,
         int cols, int rows) {
-    int tid = blockIdx.x*blockDim.x + threadIdx.x;
+    // Thread id
+    int tid = threadIdx.x;
+    // Warp id
+    int wid = tid / 32;
+    // Thread's place in the warp
+    int friend_id = tid % 32;
+    // Row: blockid * rows_per_block + warpid
+    int row = blockIdx.x * (blockDim.x / 32) + wid;
 
-    if (tid < rows) {
-        data_t acc = 0;
-        for (int i=ys[tid]; i<ys[tid+1]; i++) {
-            acc += vals[i] * vec[xs[i]];
+    extern __shared__ data_t buffer[];
+
+    buffer[tid] = 0;
+    if (row < rows) {
+        int start = ys[row];
+        int end = ys[row+1];
+
+        // The sum of the elements taken by this thread. In case there are more values in
+        // a row than threads in a warp
+        data_t sum = 0; 
+        for (int i=start+friend_id; i<end; i+=32) {
+            // The access to the vector is not coalesced
+            sum += vals[i] * vec[xs[i]];
         }
-        ret[tid] = acc;
+
+        buffer[tid] = sum;
+    }
+
+    for (int s=1; s<32; s<<=1) {
+        __syncthreads();
+        if ((tid & ((s<<1)-1)) == 0) {
+            buffer[tid] += buffer[tid+s];
+        }
+    }
+
+    if (friend_id==0 && row<rows) {
+        ret[row] = buffer[tid];
     }
 }
 
-data_t* mult_per_row(MAT_CSR *csr, data_t *ones, int maxThreads) {
-    // Create as many threads as matrix rows
-    int n_threads = csr->nrows;
-    // Enough blocks to accomodate the threads
-    int n_blocks = ceil((float)n_threads / maxThreads);
+data_t* mult_warp_row_shared(MAT_CSR *csr, data_t *ones, int threads_per_block) {
+    int warps_per_block = threads_per_block / 32;
+    int n_blocks = ceil((float)ROWS / warps_per_block);
 
     // Put the data into managed memory to make it accessible by the GPU
     data_t *vals, *vec, *ret;
@@ -44,7 +71,7 @@ data_t* mult_per_row(MAT_CSR *csr, data_t *ones, int maxThreads) {
     cudaEventCreate(&stop);
     for (int r=-PRERUNS; r<RUNS; r++) {
         cudaEventRecord(start);
-        mult_per_row_kelner<<<n_blocks, maxThreads>>>(vals, xs, ys, vec, ret, COLS, ROWS);
+        kelner<<<n_blocks, threads_per_block, sizeof(data_t)*warps_per_block*32>>>(vals, xs, ys, vec, ret, COLS, ROWS);
         cudaEventRecord(stop);
         cudaEventSynchronize(stop);
         float milliseconds = 0;
@@ -56,7 +83,7 @@ data_t* mult_per_row(MAT_CSR *csr, data_t *ones, int maxThreads) {
             times[r] = milliseconds;
         }
     }
-    print_timing(times, RUNS, csr->nvals*2);
+    print_timing(times, RUNS, 0);
 
     cudaFree(vals);
     cudaFree(vec);

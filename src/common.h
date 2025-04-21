@@ -1,5 +1,5 @@
 #ifndef data_t
-#define data_t float
+#define data_t double
 
 typedef struct {
     data_t *vals;

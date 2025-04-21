@@ -7,6 +7,7 @@
 #include "src/naiveCPU.h"
 #include "src/threadPerRow.h"
 #include "src/warpRow.h"
+#include "src/warpRowShared.h"
 
 int main(void) {
     srand(time(NULL));
@@ -54,8 +55,21 @@ int main(void) {
             data_t* prod = mult_warp_row(&csr, ones, n_threads);
             if (DOPRINT) print_array(prod, ROWS);
 
-            // assert_correct(prod_naive, prod, ROWS);
             // Misterious rounding errors?
+            assert_correct(prod_naive, prod, ROWS);
+            cudaFree(prod);
+        }
+    }
+
+    // Moved the buffer for the reduction to the shared memory
+    {
+        printf("---- GPU. One warp per row: -----\n");
+        for (int n_threads = 32; n_threads <= prop.maxThreadsPerBlock; n_threads<<=1) {
+            printf("Threads per block: %d\n", n_threads);
+            data_t* prod = mult_warp_row_shared(&csr, ones, n_threads);
+            if (DOPRINT) print_array(prod, ROWS);
+
+            assert_correct(prod_naive, prod, ROWS);
             cudaFree(prod);
         }
     }

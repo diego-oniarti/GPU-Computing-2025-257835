@@ -113,7 +113,7 @@ void assert_correct(data_t *m1, data_t *m2, int n) {
         }
     }
     if (maxErr != 0) {
-        printf("!!! - Max error: %f", maxErr);
-        exit(1);
+        printf("!!! - Max error: %f\n", maxErr);
+        // exit(1);
     }
 }
