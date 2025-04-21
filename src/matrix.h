@@ -24,3 +24,5 @@ void destroy_CSR(MAT_CSR *csr);
 void print_array(data_t *arr, int n);
 void print_array_i(int *arr, int n);
 void print_CSR(MAT_CSR *csr);
+
+bool check_equal(data_t *m1, data_t *m2, int n);

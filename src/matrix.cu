@@ -96,3 +96,10 @@ void print_CSR(MAT_CSR *csr) {
     printf("Ys:    |");
     print_array_i(csr->ys, csr->nrows+1);
 }
+
+bool check_equal(data_t *m1, data_t *m2, int n) {
+    for (int i=0; i<n; i++) {
+        if (m1[i] != m2[i]) return false;
+    }
+    return true;
+}

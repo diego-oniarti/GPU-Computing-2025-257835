@@ -25,12 +25,9 @@ int main(void) {
     }
 
     // Naive CPU implementation
-    {
-        printf("---------- CPU product: ----------\n");
-        data_t *prod_naive = multiply_naive(&csr, ones);
-        if (DOPRINT) print_array(prod_naive, ROWS);
-        free(prod_naive);
-    }
+    printf("---------- CPU product: ----------\n");
+    data_t *prod_naive = multiply_naive(&csr, ones);
+    if (DOPRINT) print_array(prod_naive, ROWS);
 
     // Simple GPU implementation
     // The elements on each row are handled by their own thread
@@ -40,6 +37,10 @@ int main(void) {
             printf("Threads per block: %d\n", n_threads);
             data_t* prod = mult_per_row(&csr, ones, n_threads);
             if (DOPRINT) print_array(prod, ROWS);
+            if (!check_equal(prod_naive, prod, ROWS)) {
+                printf("!!! - Fail with %d threads per block\n", n_threads);
+                exit(1);
+            }
             cudaFree(prod);
         }
     }
@@ -54,10 +55,15 @@ int main(void) {
             printf("Threads per block: %d\n", n_threads);
             data_t* prod = mult_warp_row(&csr, ones, n_threads);
             if (DOPRINT) print_array(prod, ROWS);
+            if (!check_equal(prod_naive, prod, ROWS)) {
+                printf("!!! - Fail with %d threads per block\n", n_threads);
+                exit(1);
+            }
             cudaFree(prod);
         }
     }
 
+    free(prod_naive);
     free(mat);
     free(ones);
     destroy_CSR(&csr);
