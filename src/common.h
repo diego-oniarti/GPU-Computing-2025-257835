@@ -12,8 +12,8 @@ typedef struct {
 
 #define PRERUNS 3
 #define RUNS 10
-#define COLS 200000
-#define ROWS 300000
+#define COLS 20000
+#define ROWS 30000
 
 // print the results
 #define DOPRINT false

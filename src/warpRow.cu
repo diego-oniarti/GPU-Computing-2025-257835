@@ -17,7 +17,7 @@ void mult_warp_row_kelner(data_t *vals, int *xs, int *ys,
     // Row: blockid * rows_per_block + warpid
     int row = blockIdx.x * (blockDim.x / 32) + wid;
 
-    buffer[tid] = 0; // Should this be out of the if?
+    buffer[tid] = 0;
     if (row < rows) {
         int start = ys[row];
         int end = ys[row+1];
@@ -35,7 +35,7 @@ void mult_warp_row_kelner(data_t *vals, int *xs, int *ys,
 
     for (int s=1; s<32; s<<=1) {
         __syncthreads();
-        if (tid & ((s<<1)-1) == 0) {
+        if ((tid & ((s<<1)-1)) == 0) {
             buffer[tid] += buffer[tid+s];
         }
     }

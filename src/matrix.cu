@@ -96,3 +96,24 @@ void print_CSR(MAT_CSR *csr) {
     printf("Ys:    |");
     print_array_i(csr->ys, csr->nrows+1);
 }
+
+bool check_equal(data_t *m1, data_t *m2, int n) {
+    for (int i=0; i<n; i++) {
+        if (m1[i] != m2[i]) return false;
+    }
+    return true;
+}
+
+void assert_correct(data_t *m1, data_t *m2, int n) {
+    data_t maxErr = 0;
+    for (int i=0; i<n; i++) {
+        if (m1[i] != m2[i]) {
+            data_t error = abs(m2[i]-m1[i]);
+            if (error>maxErr) maxErr=error;
+        }
+    }
+    if (maxErr != 0) {
+        printf("!!! - Max error: %f", maxErr);
+        exit(1);
+    }
+}
