@@ -7,6 +7,8 @@
  */
 data_t* get_sparse_matrix(int rows, int cols, float p);
 
+void read_mtx(MAT_CSR *mat, const char *path);
+
 /*
  * Generates a vector of the given size filled with ones
  */

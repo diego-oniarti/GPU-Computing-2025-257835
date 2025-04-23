@@ -4,7 +4,7 @@
 2. GPU
     - [x] CSR 1 thread per row
     - [-] CSR 1 thread per val
-    - [-] CSR 1 warp per row
+    - [x] CSR 1 warp per row
     - [x] add shared mem
         - [x] for the buffer
         - [ ] for the vector
@@ -48,7 +48,7 @@ Forthermore, each warp executes in lock-step, meaning that each row can execute
 independently regardles of the number of elements contained
 
 From this point on I started noticing some small errors in the results, which I hope can
-be attributed to rounding and floating point precision.
+be attributed to floating point precision and the lack addition associativity in C.
 Some facts that make me believe this:
 - The errors only manifest when the matrix is sufficiently big. This could mean a certain
   amount of operations is needed before the errors build up

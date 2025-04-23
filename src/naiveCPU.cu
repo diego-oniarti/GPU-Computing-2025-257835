@@ -7,6 +7,8 @@ data_t* multiply_naive(MAT_CSR *mat, data_t *vec) {
     struct timeval temp_1={0,0}, temp_2={0,0};
     double times[RUNS];
 
+    int ROWS = mat->nrows;
+
     data_t *result;
 
     for (int r=-PRERUNS; r<RUNS; r++) {

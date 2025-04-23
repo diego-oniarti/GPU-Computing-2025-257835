@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 __global__
-void kelner(data_t *vals, int *xs, int *ys, 
+void kernel(data_t *vals, int *xs, int *ys, 
         data_t *vec, data_t *ret,
         int cols, int rows) {
     // Thread id
@@ -17,7 +17,10 @@ void kelner(data_t *vals, int *xs, int *ys,
     // Row: blockid * rows_per_block + warpid
     int row = blockIdx.x * (blockDim.x / 32) + wid;
 
-    extern __shared__ data_t buffer[];
+    extern __shared__ data_t smem[]; //One shared memory for both buffer and vals
+    data_t *buffer = smem;
+    //int offset = blockDim.x; // Size of the buffer
+    // data_t *shared_vec = smem+offset;
 
     buffer[tid] = 0;
     if (row < rows) {
@@ -48,20 +51,23 @@ void kelner(data_t *vals, int *xs, int *ys,
 }
 
 data_t* mult_warp_row_shared(MAT_CSR *csr, data_t *ones, int threads_per_block) {
+    int ROWS = csr->nrows;
+    int COLS = csr->ncols;
+
     int warps_per_block = threads_per_block / 32;
     int n_blocks = ceil((float)ROWS / warps_per_block);
 
     // Put the data into managed memory to make it accessible by the GPU
     data_t *vals, *vec, *ret;
     int *xs, *ys;
-    cudaMallocManaged(&vals, sizeof(data_t)*csr->nvals);
+    cudaMalloc(&vals, sizeof(data_t)*csr->nvals);
     cudaMemcpy(vals, csr->vals, sizeof(data_t)*csr->nvals, cudaMemcpyHostToDevice);
-    cudaMallocManaged(&vec, sizeof(data_t)*COLS);
+    cudaMalloc(&vec, sizeof(data_t)*COLS);
     cudaMemcpy(vec, ones, sizeof(data_t)*COLS, cudaMemcpyHostToDevice);
     cudaMallocManaged(&ret, sizeof(data_t)*ROWS);
-    cudaMallocManaged(&xs, sizeof(int)*csr->nvals);
+    cudaMalloc(&xs, sizeof(int)*csr->nvals);
     cudaMemcpy(xs, csr->xs, sizeof(int)*csr->nvals, cudaMemcpyHostToDevice);
-    cudaMallocManaged(&ys, sizeof(int)*(ROWS+1));
+    cudaMalloc(&ys, sizeof(int)*(ROWS+1));
     cudaMemcpy(ys, csr->ys, sizeof(int)*(ROWS+1), cudaMemcpyHostToDevice);
 
     // Events and array for timing
@@ -71,7 +77,15 @@ data_t* mult_warp_row_shared(MAT_CSR *csr, data_t *ones, int threads_per_block) 
     cudaEventCreate(&stop);
     for (int r=-PRERUNS; r<RUNS; r++) {
         cudaEventRecord(start);
-        kelner<<<n_blocks, threads_per_block, sizeof(data_t)*warps_per_block*32>>>(vals, xs, ys, vec, ret, COLS, ROWS);
+        size_t buffer_size = sizeof(data_t)*warps_per_block*32;
+        // size_t vec_size = sizeof(data_t)*COLS;
+        kernel<<<n_blocks, threads_per_block, buffer_size>>>(
+                vals, xs, ys, vec, ret, COLS, ROWS
+                );
+        cudaError_t err = cudaGetLastError();
+        if (err != cudaSuccess) {
+            printf("kernel launch failed: %s\n", cudaGetErrorString(err));
+        }
         cudaEventRecord(stop);
         cudaEventSynchronize(stop);
         float milliseconds = 0;

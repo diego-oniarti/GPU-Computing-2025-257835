@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "matrix.h"
 
 /*
@@ -106,14 +107,92 @@ bool check_equal(data_t *m1, data_t *m2, int n) {
 
 void assert_correct(data_t *m1, data_t *m2, int n) {
     data_t maxErr = 0;
+    int n_errors = 0;
     for (int i=0; i<n; i++) {
         if (m1[i] != m2[i]) {
             data_t error = abs(m2[i]-m1[i]);
             if (error>maxErr) maxErr=error;
+            n_errors++;
         }
     }
     if (maxErr != 0) {
-        printf("!!! - Max error: %f\n", maxErr);
+        printf("!!! - Num errors: %d | Max error: %f\n", n_errors, maxErr);
         // exit(1);
     }
+}
+
+void read_mtx(MAT_CSR *mat, const char *path) {
+    FILE *file = fopen(path, "r");
+    if (!file) return;
+
+    char *line = (char*)malloc(sizeof(char)*255);
+    size_t len = 255;
+
+    int rows, cols, nonzeros;
+    while (getline(&line, &len, file) != -1) {
+        if (len==0 || line[0]=='%') continue;
+        sscanf(line, "%d %d %d", &rows, &cols, &nonzeros);
+        break;
+    }
+    printf("rows %d\ncols %d\nnonzeros %d\n", rows, cols, nonzeros);
+
+    fpos_t pos;  // Declare a position holder
+    fgetpos(file, &pos);  // Save current position
+
+    mat->nvals = nonzeros;
+    mat->ncols = cols;
+    mat->nrows = rows;
+    mat->vals  = (data_t*)malloc(sizeof(data_t) * nonzeros);
+    mat->xs    = (int*)malloc(sizeof(int) * nonzeros);
+    mat->ys    = (int*)calloc(rows+1, sizeof(int));
+    int *row_counter = (int*)calloc(rows, sizeof(int));
+
+    // First cycle to count the number of elements on each row
+    for (int i=0; i<nonzeros; i++) {
+        int y=0, x=0;
+        data_t val=0;
+        getline(&line, &len, file);
+        sscanf(line, "%d %d %lf", &y, &x, &val);
+        y--;
+        x--;
+        mat->ys[y+1]++;
+    }
+    // Incremental sum of the row pointer
+    for (int i=1; i<=rows; i++) {
+        mat->ys[i] += mat->ys[i-1];
+    }
+
+    // Reset the position in the file to read the lines again
+    fsetpos(file, &pos);
+    for (int i=0; i<nonzeros; i++) {
+        int y=0, x=0;
+        data_t val=0;
+        getline(&line, &len, file);
+        sscanf(line, "%d %d %lf", &y, &x, &val);
+        y--;
+        x--;
+
+        //int p = mat->ys[y]+(row_counter[y]++);
+        int base = mat->ys[y];
+        int holding_x = x;
+        data_t holding_val = val;
+        for (int i=0; i<row_counter[y]; i++) {
+            if ( holding_x < mat->xs[base+i] ) {
+                int tmp_x = mat->xs[base+i];
+                mat->xs[base+i] = holding_x;
+                holding_x = tmp_x;
+
+                data_t tmp_val = mat->vals[base+i];
+                mat->vals[base+i] = holding_val;
+                holding_val = tmp_val;
+            }
+        }
+        mat->xs[base+row_counter[y]] = holding_x;
+        mat->vals[base+row_counter[y]] = holding_val;
+        row_counter[y] += 1;
+    }
+
+    fclose(file);
+    free(line);
+    free(row_counter);
 }

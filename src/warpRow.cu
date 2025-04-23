@@ -46,6 +46,9 @@ void mult_warp_row_kelner(data_t *vals, int *xs, int *ys,
 }
 
 data_t* mult_warp_row(MAT_CSR *csr, data_t *ones, int threads_per_block) {
+    int ROWS = csr->nrows;
+    int COLS = csr->ncols;
+
     int warps_per_block = threads_per_block / 32;
     int n_blocks = ceil((float)ROWS / warps_per_block);
     int n_threads = threads_per_block * n_blocks;       // R * 32?
@@ -53,14 +56,14 @@ data_t* mult_warp_row(MAT_CSR *csr, data_t *ones, int threads_per_block) {
     // Put the data into managed memory to make it accessible by the GPU
     data_t *vals, *vec, *ret;
     int *xs, *ys;
-    cudaMallocManaged(&vals, sizeof(data_t)*csr->nvals);
+    cudaMalloc(&vals, sizeof(data_t)*csr->nvals);
     cudaMemcpy(vals, csr->vals, sizeof(data_t)*csr->nvals, cudaMemcpyHostToDevice);
-    cudaMallocManaged(&vec, sizeof(data_t)*COLS);
+    cudaMalloc(&vec, sizeof(data_t)*COLS);
     cudaMemcpy(vec, ones, sizeof(data_t)*COLS, cudaMemcpyHostToDevice);
     cudaMallocManaged(&ret, sizeof(data_t)*ROWS);
-    cudaMallocManaged(&xs, sizeof(int)*csr->nvals);
+    cudaMalloc(&xs, sizeof(int)*csr->nvals);
     cudaMemcpy(xs, csr->xs, sizeof(int)*csr->nvals, cudaMemcpyHostToDevice);
-    cudaMallocManaged(&ys, sizeof(int)*(ROWS+1));
+    cudaMalloc(&ys, sizeof(int)*(ROWS+1));
     cudaMemcpy(ys, csr->ys, sizeof(int)*(ROWS+1), cudaMemcpyHostToDevice);
 
     data_t *buffer; // This should be shared memory

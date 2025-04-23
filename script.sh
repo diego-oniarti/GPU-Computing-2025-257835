@@ -1,12 +1,13 @@
 #!/bin/bash
 
-make
+# Load CUDA module if not already loaded
+module is-loaded CUDA/12.1.1 || module load CUDA/12.1.1
 
-if [[ $? -eq 0 ]]
-then
-    srun --nodes=1 --ntasks=1 --cpus-per-task=1 --gres=gpu:1 --partition=edu-short --job-name=homework --pty ./bin/main
+# Build the project
+if make; then
+    srun --nodes=1 --ntasks=1 --cpus-per-task=1 --gres=gpu:1 \
+         --partition=edu-short --job-name=homework --pty ./bin/main
 else
     echo "Make failed"
 fi
-
 
