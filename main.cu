@@ -86,7 +86,6 @@ int main(int argc, char **argv) {
     }
 
     free(prod_naive);
-    // free(mat);
     free(ones);
     destroy_CSR(&csr);
 }

@@ -116,7 +116,19 @@ void assert_correct(data_t *m1, data_t *m2, int n) {
         }
     }
     if (maxErr != 0) {
-        printf("!!! - Num errors: %d | Max error: %f\n", n_errors, maxErr);
+        fprintf(stderr, "!!! - Num errors: %d | Max error: %.17g\n", n_errors, maxErr);
+        // print error as binary
+        long long *errInt = (long long*)&maxErr;
+        for (int i=63; i>=0; i--) {
+            long long b = (*errInt) & ((long long)1<<i);
+            if (b==0) {
+                printf("0");
+            }else{
+                printf("1");
+            }
+        }
+        printf("\n");
+        
         // exit(1);
     }
 }

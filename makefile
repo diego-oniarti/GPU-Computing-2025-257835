@@ -14,4 +14,4 @@ clean:
 
 .PHONY: run
 run: bin/main
-	./$^
+	./$^ $(FILE)
