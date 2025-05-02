@@ -26,6 +26,16 @@ data_t* get_sparse_matrix(int rows, int cols, float p) {
 data_t* get_ones(int n) {
     data_t *ret = (data_t*)malloc(sizeof(data_t) * n);
     for (int i=0; i<n; i++) {
+        ret[i] = (data_t)(rand()%1000)/100.;
+    }
+
+    return ret;
+}
+
+data_t* get_random_vec(int n) {
+    data_t *ret = (data_t*)malloc(sizeof(data_t) * n);
+    
+    for (int i=0; i<n; i++) {
         ret[i] = 1;
     }
 

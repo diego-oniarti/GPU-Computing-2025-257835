@@ -14,6 +14,8 @@ void read_mtx(MAT_CSR *mat, const char *path);
  */
 data_t* get_ones(int n);
 
+data_t* get_random_vec(int n);
+
 int count_non_zeros(data_t *mat, int rows, int cols);
 
 /**

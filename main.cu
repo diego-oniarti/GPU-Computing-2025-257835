@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     int ROWS = csr.nrows;
     int COLS = csr.ncols;
 
-    data_t *ones = get_ones(COLS);
+    data_t *vector = get_random_vec(COLS);
 
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, 0);
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 
     // Naive CPU implementation
     printf("------------------- CPU product: -------------------\n");
-    data_t *prod_naive = multiply_naive(&csr, ones);
+    data_t *prod_naive = multiply_naive(&csr, vector);
     if (DOPRINT) print_array(prod_naive, ROWS);
 
     // Simple GPU implementation
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
         printf("-------------- GPU. One thread per row: -------------\n");
         for (int n_threads = 32; n_threads <= prop.maxThreadsPerBlock; n_threads<<=1) {
             printf("Threads per block: %d\n", n_threads);
-            data_t* prod = mult_per_row(&csr, ones, n_threads);
+            data_t* prod = mult_per_row(&csr, vector, n_threads);
             if (DOPRINT) print_array(prod, ROWS);
 
             assert_correct(prod_naive, prod, ROWS);
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
         printf("-------------- GPU. One warp per row: ---------------\n");
         for (int n_threads = 32; n_threads <= prop.maxThreadsPerBlock; n_threads<<=1) {
             printf("Threads per block: %d\n", n_threads);
-            data_t* prod = mult_warp_row(&csr, ones, n_threads);
+            data_t* prod = mult_warp_row(&csr, vector, n_threads);
             if (DOPRINT) print_array(prod, ROWS);
 
             // Misterious rounding errors?
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
         printf("----- GPU. One warp per row plus shared memory: -----\n");
         for (int n_threads = 32; n_threads <= prop.maxThreadsPerBlock; n_threads<<=1) {
             printf("Threads per block: %d\n", n_threads);
-            data_t* prod = mult_warp_row_shared(&csr, ones, n_threads);
+            data_t* prod = mult_warp_row_shared(&csr, vector, n_threads);
             if (DOPRINT) print_array(prod, ROWS);
 
             assert_correct(prod_naive, prod, ROWS);
@@ -86,6 +86,6 @@ int main(int argc, char **argv) {
     }
 
     free(prod_naive);
-    free(ones);
+    free(vector);
     destroy_CSR(&csr);
 }
