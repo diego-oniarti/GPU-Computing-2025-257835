@@ -59,7 +59,7 @@ data_t* mult_per_row(MAT_CSR *csr, data_t *ones, int maxThreads) {
             times[r] = milliseconds;
         }
     }
-    print_timing(times, RUNS, csr->nvals*2);
+    print_timing(times, RUNS, csr->nvals*2, csr);
 
     cudaFree(vals);
     cudaFree(vec);

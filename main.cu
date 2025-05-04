@@ -36,6 +36,19 @@ int main(int argc, char **argv) {
         print_CSR(&csr);
     }
 
+    {
+        // Calculate theoretical bandwidth
+        float bandwidth = 
+            (prop.memoryClockRate * 1000.0f * 2 *  // Convert kHz to Hz and double for DDR
+             (prop.memoryBusWidth / 8.0f)) /        // Convert bits to bytes
+            1e9;                                    // Convert to GB/s
+
+        printf("Device: %s\n", prop.name);
+        printf("Memory Clock Rate: %.1f MHz\n", prop.memoryClockRate * 1e-3f);
+        printf("Memory Bus Width: %d bits\n", prop.memoryBusWidth);
+        printf("Theoretical Memory Bandwidth: %.2f GB/s\n\n", bandwidth);
+    }
+
     // Naive CPU implementation
     printf("------------------- CPU product: -------------------\n");
     data_t *prod_naive = multiply_naive(&csr, vector);

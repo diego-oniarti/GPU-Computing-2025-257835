@@ -39,7 +39,7 @@ data_t* multiply_naive(MAT_CSR *mat, data_t *vec) {
         }
     }
 
-    print_timing(times, RUNS, mat->nvals*2);
+    print_timing(times, RUNS, mat->nvals*2, mat);
     return result;
 }
 

@@ -1,5 +1,5 @@
 CC = nvcc
-CFLAGS = -g -I./src -lm --gpu-architecture=sm_89 -m64
+CFLAGS = -g -I./src -lm --gpu-architecture=sm_80 -m64
 
 MODULES := $(wildcard src/*.cu)
 HEADERS := $(wildcard src/*.h)

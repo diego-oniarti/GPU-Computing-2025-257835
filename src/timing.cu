@@ -1,3 +1,4 @@
+#include "common.h"
 #include "stdio.h"
 #include "timing.h"
 
@@ -27,9 +28,16 @@ double derivation(double *times, int n) {
 }
 
 
-void print_timing(double *times, int n, int FLO) {
+void print_timing(double *times, int n, int FLO, MAT_CSR *mat) {
     double  avg = mean(times, n);
     printf("               Mean: %.3f ms\n", avg);
     printf("Standard derivation: %.3f ms\n", derivation(times, n));
     printf("              FLOPs: %.3f\n", (double)FLO/avg);
+
+    if (mat==NULL) return;
+
+    int total_bytes = sizeof(data_t)*(mat->nvals + mat->ncols + mat->nrows) 
+        + sizeof(int)*(mat->nvals + mat->nrows+1);
+    double bandwidth = (double)total_bytes/(avg* 1e6);
+    printf("          Bandwidth: %.3f GB/s\n", bandwidth);
 }

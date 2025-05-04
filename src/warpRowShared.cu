@@ -97,7 +97,7 @@ data_t* mult_warp_row_shared(MAT_CSR *csr, data_t *ones, int threads_per_block) 
             times[r] = milliseconds;
         }
     }
-    print_timing(times, RUNS, 0);
+    print_timing(times, RUNS, csr->nvals*2, csr);
 
     cudaFree(vals);
     cudaFree(vec);
