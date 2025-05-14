@@ -10,12 +10,20 @@
  */
 data_t* get_sparse_matrix(int rows, int cols, float p) {
     data_t *ret = (data_t*)malloc(sizeof(data_t) * cols * rows);
+    int nonzeros=0;
     for (int y=0; y<rows; y++) {
         for (int x=0; x<cols; x++) {
-            ret[y*cols + x] = (rand()%100 < p*100) ? (data_t)(rand()%1000)/100. : 0;
+            if (rand()%100 < p*100) {
+                ret[y*cols + x] = (data_t)(rand()%1000)/100.;
+                nonzeros++;
+            }else{
+                ret[y*cols + x] = 0;
+            }
             //printf("%f ", ret[y*rows + x]);
         }
     }
+
+    printf("rows %d\ncols %d\nnonzeros %d\n", rows, cols, nonzeros);
 
     return ret;
 }

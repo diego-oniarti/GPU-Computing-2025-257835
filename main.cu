@@ -8,6 +8,7 @@
 #include "src/threadPerRow.h"
 #include "src/warpRow.h"
 #include "src/warpRowShared.h"
+#include "src/blockRowShared.h"
 
 int main(int argc, char **argv) {
     srand(time(NULL));
@@ -98,6 +99,20 @@ int main(int argc, char **argv) {
         }
     }
 
+    // Block per row
+    {
+        printf("----- GPU. One block per row plus shared memory: -----\n");
+        for (int n_threads = 32; n_threads <= prop.maxThreadsPerBlock; n_threads<<=1) {
+            printf("Threads per block: %d\n", n_threads);
+            data_t* prod = mult_block_row_shared(&csr, vector, n_threads);
+            if (DOPRINT) print_array(prod, ROWS);
+
+            assert_correct(prod_naive, prod, ROWS);
+            cudaFree(prod);
+        }
+    }
+
+ 
     free(prod_naive);
     free(vector);
     destroy_CSR(&csr);
