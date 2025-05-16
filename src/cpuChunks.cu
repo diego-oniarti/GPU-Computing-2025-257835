@@ -3,26 +3,41 @@
 #include <sys/time.h>
 #include <stdio.h>
 
-data_t* multiply_naive(MAT_CSR *mat, data_t *vec) {
+#define SPAN 4
+
+data_t* multiply_chunks(MAT_CSR *mat, data_t *vec) {
     struct timeval temp_1={0,0}, temp_2={0,0};
     double times[RUNS];
 
     int ROWS = mat->nrows;
+    int COLS = mat->ncols;
 
     data_t *result;
 
     for (int r=-PRERUNS; r<RUNS; r++) {
         result = (data_t*)malloc(sizeof(data_t)*ROWS);
+
+        // Initialize the counters
+        int *row_counters = (int*)malloc(sizeof(int)*ROWS);
+        for (int i=0; i<ROWS; i++) {
+            row_counters[i] = mat->ys[i];
+        }
+
         gettimeofday(&temp_1, (struct timezone*)0);
 
         /// Actual multiplication
-        for (int y=0; y<ROWS; y++) {
-            data_t row_acc = 0;
-            for (int i=mat->ys[y]; i<mat->ys[y+1]; i++) {
-                int x = mat->xs[i];
-                row_acc += mat->vals[i] * vec[x];
+        for (int i=0; i<ROWS; i++) {
+            result[i]=0;
+        }
+        for (int i=0; i<COLS; i+= SPAN) {
+            for (int r=0; r<ROWS; r++) {
+                int line_end = mat->ys[r+1];
+                int *rc = &row_counters[r];
+                while (*rc<line_end && mat->xs[*rc]>=i && mat->xs[*rc]<i+ SPAN) {
+                    result[r] += mat->vals[*rc] * vec[mat->xs[*rc]];
+                    (*rc)++;
+                }
             }
-            result[y] = row_acc;
         }
         ///
 
@@ -37,9 +52,9 @@ data_t* multiply_naive(MAT_CSR *mat, data_t *vec) {
         if (r<RUNS-1) {
             free(result);
         }
+        free(row_counters);
     }
 
     print_timing(times, RUNS, mat->nvals*2, mat);
     return result;
 }
-

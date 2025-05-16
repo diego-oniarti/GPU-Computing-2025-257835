@@ -18,7 +18,7 @@ double geom_mean(double *times, int n) {
     return pow(acc, 1.0/n);
 }
 
-double derivation(double *times, int n) {
+double deviation(double *times, int n) {
     double acc = 0;
     double m = mean(times, n);
     for (int i=0; i<n; i++) {
@@ -29,15 +29,16 @@ double derivation(double *times, int n) {
 
 
 void print_timing(double *times, int n, int FLO, MAT_CSR *mat) {
-    double  avg = mean(times, n);
-    printf("               Mean: %.3f ms\n", avg);
-    printf("Standard derivation: %.3f ms\n", derivation(times, n));
-    printf("              FLOPs: %.3f\n", (double)FLO/avg);
+    double avg = mean(times, n);
+    printf("              Mean: %.3f ms\n", avg);
+    printf("Standard deviation: %.3f ms\n", deviation(times, n));
+    printf("             FLOPs: %.3f\n", (double)FLO/avg);
 
-    if (mat==NULL) return;
+    if (mat == NULL) return;
 
-    int total_bytes = sizeof(data_t)*(mat->nvals + mat->ncols + mat->nrows) 
-        + sizeof(int)*(mat->nvals + mat->nrows+1);
-    double bandwidth = (double)total_bytes/(avg* 1e6);
-    printf("          Bandwidth: %.3f GB/s\n", bandwidth);
+    size_t total_bytes = sizeof(data_t)*(mat->nvals + mat->ncols + mat->nrows)
+                       + sizeof(int)*(mat->nvals + mat->nrows + 1);
+
+    double bandwidth = (double)total_bytes / (avg * 1e-3) / 1e9;
+    printf("         Bandwidth: %.3f GB/s\n", bandwidth);
 }

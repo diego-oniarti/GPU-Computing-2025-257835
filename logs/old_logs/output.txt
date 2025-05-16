@@ -1,0 +1,50 @@
+No matrix specified. Generating one
+rows 30000
+cols 20000
+nonzeros 600000000
+Device: NVIDIA A30
+Memory Clock Rate: 1215.0 MHz
+Memory Bus Width: 3072 bits
+Theoretical Memory Bandwidth: 933.12 GB/s
+
+------------------- CPU product: -------------------
+               Mean: 1876517.600 ms
+Standard deviation: 2855.354 ms
+              FLOPs: 638.842
+          Bandwidth: 0.004 GB/s
+------------------- CPU + chunks: -------------------
+               Mean: 6522261.600 ms
+Standard deviation: 111591.686 ms
+              FLOPs: 183.801
+          Bandwidth: 0.001 GB/s
+-------------- GPU. One thread per row: -------------
+Threads per block: 32
+               Mean: 18.231 ms
+Standard deviation: 0.060 ms
+              FLOPs: 65756855.123
+          Bandwidth: 394.567 GB/s
+Threads per block: 64
+               Mean: 17.395 ms
+Standard deviation: 0.072 ms
+              FLOPs: 68915505.494
+          Bandwidth: 413.521 GB/s
+Threads per block: 128
+               Mean: 19.310 ms
+Standard deviation: 0.055 ms
+              FLOPs: 62083161.175
+          Bandwidth: 372.524 GB/s
+Threads per block: 256
+               Mean: 24.638 ms
+Standard deviation: 0.032 ms
+              FLOPs: 48656398.758
+          Bandwidth: 291.958 GB/s
+Threads per block: 512
+               Mean: 29.572 ms
+Standard deviation: 0.043 ms
+              FLOPs: 40538041.847
+          Bandwidth: 243.244 GB/s
+Threads per block: 1024
+               Mean: 55.853 ms
+Standard deviation: 0.032 ms
+              FLOPs: 21463445.312
+          Bandwidth: 128.789 GB/s

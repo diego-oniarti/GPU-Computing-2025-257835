@@ -1,0 +1,104 @@
+No matrix specified. Generating one
+Device: NVIDIA A30
+Memory Clock Rate: 1215.0 MHz
+Memory Bus Width: 3072 bits
+Theoretical Memory Bandwidth: 933.12 GB/s
+
+------------------- CPU product: -------------------
+               Mean: 19944.400 ms
+Standard derivation: 298.611 ms
+              FLOPs: 600.852
+          Bandwidth: 0.004 GB/s
+-------------- GPU. One thread per row: -------------
+Threads per block: 32
+               Mean: 0.208 ms
+Standard derivation: 0.001 ms
+              FLOPs: 57620669.214
+          Bandwidth: 348.032 GB/s
+Threads per block: 64
+               Mean: 0.207 ms
+Standard derivation: 0.002 ms
+              FLOPs: 58020614.086
+          Bandwidth: 350.448 GB/s
+Threads per block: 128
+               Mean: 0.212 ms
+Standard derivation: 0.001 ms
+              FLOPs: 56398832.526
+          Bandwidth: 340.652 GB/s
+Threads per block: 256
+               Mean: 0.271 ms
+Standard derivation: 0.001 ms
+              FLOPs: 44161350.078
+          Bandwidth: 266.737 GB/s
+Threads per block: 512
+               Mean: 0.259 ms
+Standard derivation: 0.001 ms
+              FLOPs: 46201174.821
+          Bandwidth: 279.058 GB/s
+Threads per block: 1024
+               Mean: 0.584 ms
+Standard derivation: 0.001 ms
+              FLOPs: 20520354.281
+          Bandwidth: 123.944 GB/s
+-------------- GPU. One warp per row: ---------------
+Threads per block: 32
+               Mean: 0.237 ms
+Standard derivation: 0.001 ms
+              FLOPs: 50551869.169
+          Bandwidth: 305.336 GB/s
+Threads per block: 64
+               Mean: 0.246 ms
+Standard derivation: 0.001 ms
+              FLOPs: 48802160.007
+          Bandwidth: 294.768 GB/s
+Threads per block: 128
+               Mean: 0.246 ms
+Standard derivation: 0.001 ms
+              FLOPs: 48720891.065
+          Bandwidth: 294.277 GB/s
+Threads per block: 256
+               Mean: 0.248 ms
+Standard derivation: 0.002 ms
+              FLOPs: 48418526.694
+          Bandwidth: 292.451 GB/s
+Threads per block: 512
+               Mean: 0.235 ms
+Standard derivation: 0.001 ms
+              FLOPs: 51081439.666
+          Bandwidth: 308.535 GB/s
+Threads per block: 1024
+               Mean: 0.228 ms
+Standard derivation: 0.002 ms
+              FLOPs: 52643985.032
+          Bandwidth: 317.973 GB/s
+----- GPU. One warp per row plus shared memory: -----
+Threads per block: 32
+               Mean: 0.212 ms
+Standard derivation: 0.001 ms
+              FLOPs: 56398832.526
+          Bandwidth: 340.652 GB/s
+Threads per block: 64
+               Mean: 0.214 ms
+Standard derivation: 0.001 ms
+              FLOPs: 56074545.496
+          Bandwidth: 338.693 GB/s
+Threads per block: 128
+               Mean: 0.191 ms
+Standard derivation: 0.032 ms
+              FLOPs: 62783035.786
+          Bandwidth: 379.213 GB/s
+Threads per block: 256
+               Mean: 0.139 ms
+Standard derivation: 0.001 ms
+              FLOPs: 86176422.050
+          Bandwidth: 520.510 GB/s
+Threads per block: 512
+               Mean: 0.138 ms
+Standard derivation: 0.001 ms
+              FLOPs: 86687095.462
+          Bandwidth: 523.595 GB/s
+Threads per block: 1024
+               Mean: 0.128 ms
+Standard derivation: 0.001 ms
+              FLOPs: 93922612.688
+          Bandwidth: 567.298 GB/s

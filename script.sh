@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load CUDA module if not already loaded
-module is-loaded CUDA/12.1.1 || module load CUDA/12.1.1
+module is-loaded CUDA/12.5.0 || module load CUDA/12.5.0
 
 # Build the project
 if ! make; then
