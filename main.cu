@@ -17,13 +17,12 @@ int main(int argc, char **argv) {
     MAT_CSR csr;
     if (argc != 2) {
         printf("No matrix specified. Generating one\n");
-        data_t *mat = get_sparse_matrix(30, 20, 0.001);
-        mat_to_CSR(&csr, mat, 30, 20);
+        data_t *mat = get_sparse_matrix(30000, 20000, 0.001);
+        mat_to_CSR(&csr, mat, 30000, 20000);
         free(mat);
     } else {
         read_mtx(&csr, argv[1]);
     }
-
 
     int ROWS = csr.nrows;
     int COLS = csr.ncols;
@@ -57,7 +56,7 @@ int main(int argc, char **argv) {
     if (DOPRINT) print_array(prod_naive, ROWS);
 
     // CPU variation
-    {
+    if (false) {
         printf("------------------- CPU + chunks: -------------------\n");
         data_t *prod = multiply_chunks(&csr, vector);
         if (DOPRINT) print_array(prod, ROWS);
@@ -84,7 +83,7 @@ int main(int argc, char **argv) {
     // The elements on each row are handled by their own warp
     // Rows act more independently, not forcing locked step for different number
     // of elements
-    if (false) {
+    {
         printf("-------------- GPU. One warp per row: ---------------\n");
         for (int n_threads = 32; n_threads <= prop.maxThreadsPerBlock; n_threads<<=1) {
             printf("Threads per block: %d\n", n_threads);
