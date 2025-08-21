@@ -1,5 +1,7 @@
 #include "common.h"
 
+void generate_csr(MAT_CSR *csr, int nrows, int ncols, float p);
+
 /*
  * Generates a sparse matrix where each element has a
  * uniform probability `p` of being nonzero.

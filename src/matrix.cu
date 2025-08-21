@@ -3,6 +3,53 @@
 #include <string.h>
 #include "matrix.h"
 
+void generate_csr(MAT_CSR *csr, int nrows, int ncols, float p) {
+    unsigned int seed = time(NULL);
+    srand(seed);
+
+    int *row_counts = (int*)calloc(nrows, sizeof(int));
+    int total_nz = 0;
+
+    for (int i = 0; i < nrows; i++) {
+        for (int j = 0; j < ncols; j++) {
+            if ((double)rand() / RAND_MAX < p) {
+                row_counts[i]++;
+                total_nz++;
+                rand();
+            }
+        }
+    }
+
+    csr->nrows = nrows;
+    csr->ncols = ncols;
+    csr->nvals = total_nz;
+    csr->ys = (int*)malloc((nrows + 1) * sizeof(int));
+    csr->xs = (int*)malloc(total_nz * sizeof(int));
+    csr->vals = (data_t*)malloc(total_nz * sizeof(data_t));
+
+    csr->ys[0] = 0;
+    for (int i = 0; i < nrows; i++) {
+        csr->ys[i + 1] = csr->ys[i] + row_counts[i];
+    }
+
+    srand(seed);
+    int *current_pos = (int*)calloc(nrows, sizeof(int));
+
+    for (int i = 0; i < nrows; i++) {
+        for (int j = 0; j < ncols; j++) {
+            if ((double)rand() / RAND_MAX < p) {
+                int offset = csr->ys[i] + current_pos[i];
+                csr->xs[offset] = j;
+                csr->vals[offset] = (data_t)rand() / RAND_MAX;
+                current_pos[i]++;
+            }
+        }
+    }
+
+    free(row_counts);
+    free(current_pos);
+}
+
 /*
  * Generates a sparse matrix where each element has a
  * uniform probability `p` of being nonzero.
@@ -14,7 +61,7 @@ data_t* get_sparse_matrix(int rows, int cols, float p) {
     for (int y=0; y<rows; y++) {
         for (int x=0; x<cols; x++) {
             if (rand()%100 < p*100) {
-                ret[y*cols + x] = (data_t)(rand()%1000)/100.;
+                ret[y*cols + x] = (data_t)rand()/RAND_MAX;
                 nonzeros++;
             }else{
                 ret[y*cols + x] = 0;
@@ -34,7 +81,7 @@ data_t* get_sparse_matrix(int rows, int cols, float p) {
 data_t* get_ones(int n) {
     data_t *ret = (data_t*)malloc(sizeof(data_t) * n);
     for (int i=0; i<n; i++) {
-        ret[i] = (data_t)(rand()%1000)/100.;
+        ret[i] = (data_t)rand()/RAND_MAX;
     }
 
     return ret;
@@ -76,8 +123,12 @@ void mat_to_CSR(MAT_CSR *csr, data_t *mat, int cols, int rows) {
     csr->ys[0]=0;
     int n=0;
     for (int y=0; y<rows; y++) {
-        for (int x=0; x<cols && n<nvals; x++) {
+        for (int x=0; x<cols; x++) {
             if (mat[y*cols+x]!=0) {
+                if (n >= csr->nvals) {
+                    fprintf(stderr, "nvals mismatch at row %d\n", y);
+                    exit(1);
+                }
                 csr->vals[n] = mat[y*cols+x];
                 csr->xs[n] = x;
                 n++;
@@ -159,15 +210,16 @@ void read_mtx(MAT_CSR *mat, const char *path) {
     size_t len = 255;
 
     int rows, cols, nonzeros;
+    // Read header (skip comments/blank lines)
     while (getline(&line, &len, file) != -1) {
-        if (len==0 || line[0]=='%') continue;
+        if (line[0] == '%' || line[0] == '\n') continue;
         sscanf(line, "%d %d %d", &rows, &cols, &nonzeros);
         break;
     }
     printf("rows %d\ncols %d\nnonzeros %d\n", rows, cols, nonzeros);
 
-    fpos_t pos;  // Declare a position holder
-    fgetpos(file, &pos);  // Save current position
+    fpos_t pos;
+    fgetpos(file, &pos);
 
     mat->nvals = nonzeros;
     mat->ncols = cols;
@@ -177,37 +229,43 @@ void read_mtx(MAT_CSR *mat, const char *path) {
     mat->ys    = (int*)calloc(rows+1, sizeof(int));
     int *row_counter = (int*)calloc(rows, sizeof(int));
 
-    // First cycle to count the number of elements on each row
-    for (int i=0; i<nonzeros; i++) {
+    // First pass: count number of elements per row
+    int counted = 0;
+    while (counted < nonzeros && getline(&line, &len, file) != -1) {
+        if (line[0] == '%' || line[0] == '\n') continue;
         int y=0, x=0;
         data_t val=0;
-        getline(&line, &len, file);
-        sscanf(line, "%d %d %lf", &y, &x, &val);
+        if (sscanf(line, "%d %d %f", &y, &x, &val) != 3) continue;
         y--;
         x--;
+        if (y < 0 || y >= rows) continue; // safety
         mat->ys[y+1]++;
+        counted++;
     }
-    // Incremental sum of the row pointer
+
+    // Prefix sum of row pointer
     for (int i=1; i<=rows; i++) {
         mat->ys[i] += mat->ys[i-1];
     }
 
-    // Reset the position in the file to read the lines again
+    // Second pass: read again and fill xs/vals
     fsetpos(file, &pos);
-    for (int i=0; i<nonzeros; i++) {
+    int filled = 0;
+    while (filled < nonzeros && getline(&line, &len, file) != -1) {
+        if (line[0] == '%' || line[0] == '\n') continue;
         int y=0, x=0;
         data_t val=0;
-        getline(&line, &len, file);
-        sscanf(line, "%d %d %lf", &y, &x, &val);
+        if (sscanf(line, "%d %d %f", &y, &x, &val) != 3) continue;
         y--;
         x--;
+        if (y < 0 || y >= rows) continue; // safety
 
-        //int p = mat->ys[y]+(row_counter[y]++);
         int base = mat->ys[y];
         int holding_x = x;
         data_t holding_val = val;
+
         for (int i=0; i<row_counter[y]; i++) {
-            if ( holding_x < mat->xs[base+i] ) {
+            if (holding_x < mat->xs[base+i]) {
                 int tmp_x = mat->xs[base+i];
                 mat->xs[base+i] = holding_x;
                 holding_x = tmp_x;
@@ -217,9 +275,10 @@ void read_mtx(MAT_CSR *mat, const char *path) {
                 holding_val = tmp_val;
             }
         }
-        mat->xs[base+row_counter[y]] = holding_x;
-        mat->vals[base+row_counter[y]] = holding_val;
+        mat->xs[base + row_counter[y]] = holding_x;
+        mat->vals[base + row_counter[y]] = holding_val;
         row_counter[y] += 1;
+        filled++;
     }
 
     fclose(file);

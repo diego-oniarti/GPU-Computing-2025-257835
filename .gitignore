@@ -1,2 +1,5 @@
 bin/
 mtx/
+cachegrind.out.*
+logs/output.txt
+logs/error.txt

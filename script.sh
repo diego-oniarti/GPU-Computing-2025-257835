@@ -1,20 +1,23 @@
 #!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --gres=gpu:1
+#SBATCH --output=logs/output.txt
+#SBATCH --error=logs/error.txt
+#SBATCH --partition=edu-short
+#SBATCH --job-name=homework
+#SBATCH --mail-type=END,FAIL
 
-# Load CUDA module if not already loaded
 module is-loaded CUDA/12.5.0 || module load CUDA/12.5.0
 
-# Build the project
 if ! make; then
     echo "Make failed"
     exit 1
 fi
 
-srun --nodes=1 --ntasks=1 --cpus-per-task=1 --gres=gpu:1 \
-    --output=logs/output.txt --error=logs/error.txt \
-    --partition=edu-short --job-name=homework ./bin/main $1
-
-echo "////ERRORS////"
-cat logs/error.txt
-echo "////OUTPUT////"
-cat logs/output.txt
-
+if [ $# -gt 0 ]; then
+    ./bin/main "$1"
+else
+    ./bin/main
+fi

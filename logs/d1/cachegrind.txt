@@ -1,0 +1,40 @@
+==2718917== Cachegrind, a high-precision tracing profiler
+==2718917== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.
+==2718917== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==2718917== Command: ./bin/main
+==2718917== 
+--2718917-- warning: L3 cache found, using its data for the LL simulation.
+==2718917== Warning: noted but unhandled ioctl 0x30000001 with no direction hints.
+==2718917==    This could cause spurious value errors to appear.
+==2718917==    See README_MISSING_SYSCALL_OR_IOCTL for guidance on writing a proper wrapper.
+==2718917== brk segment overflow in thread #1: can't grow to 0x483e000
+==2718917== (see section Limitations in user manual)
+==2718917== NOTE: further instances of this message will not be shown
+!!! - Num errors: 17611 | Max error: 0.001708984375
+0011101000000000000000000000000000111010111000000000000000000000
+!!! - Num errors: 17611 | Max error: 0.001708984375
+0011101000000000000000000000000000111010111000000000000000000000
+!!! - Num errors: 17611 | Max error: 0.001708984375
+0011101000000000000000000000000000111010111000000000000000000000
+!!! - Num errors: 17611 | Max error: 0.001708984375
+0011101000000000000000000000000000111010111000000000000000000000
+!!! - Num errors: 17611 | Max error: 0.001708984375
+0011101000000000000000000000000000111010111000000000000000000000
+!!! - Num errors: 17611 | Max error: 0.001708984375
+0011101000000000000000000000000000111010111000000000000000000000
+==2718917== 
+==2718917== I refs:        83,367,875,880
+==2718917== I1  misses:           415,306
+==2718917== LLi misses:            16,711
+==2718917== I1  miss rate:           0.00%
+==2718917== LLi miss rate:           0.00%
+==2718917== 
+==2718917== D refs:        34,332,748,206  (28,668,236,561 rd   + 5,664,511,645 wr)
+==2718917== D1  misses:       202,243,427  (   154,610,041 rd   +    47,633,386 wr)
+==2718917== LLd misses:       114,310,463  (    75,857,737 rd   +    38,452,726 wr)
+==2718917== D1  miss rate:            0.6% (           0.5%     +           0.8%  )
+==2718917== LLd miss rate:            0.3% (           0.3%     +           0.7%  )
+==2718917== 
+==2718917== LL refs:          202,658,733  (   155,025,347 rd   +    47,633,386 wr)
+==2718917== LL misses:        114,327,174  (    75,874,448 rd   +    38,452,726 wr)
+==2718917== LL miss rate:             0.1% (           0.1%     +           0.7%  )

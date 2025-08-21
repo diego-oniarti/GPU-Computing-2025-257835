@@ -1,0 +1,76 @@
+No matrix specified. Generating one
+rows 30000
+cols 20000
+nonzeros 6002646
+Device: NVIDIA A30
+Memory Clock Rate: 1215.0 MHz
+Memory Bus Width: 3072 bits
+Theoretical Memory Bandwidth: 933.12 GB/s
+
+------------------- CPU product: -------------------
+              Mean: 19.586 ms
+Standard deviation: 0.017 ms
+             FLOPs: 612323.355
+         Bandwidth: 2.464 GB/s
+-------------- GPU. One thread per row: -------------
+Threads per block: 32
+              Mean: 0.150 ms
+Standard deviation: 0.001 ms
+             FLOPs: 79998771.785
+         Bandwidth: 321.863 GB/s
+Threads per block: 64
+              Mean: 0.163 ms
+Standard deviation: 0.001 ms
+             FLOPs: 73474405.920
+         Bandwidth: 295.613 GB/s
+Threads per block: 128
+              Mean: 0.151 ms
+Standard deviation: 0.001 ms
+             FLOPs: 79402169.405
+         Bandwidth: 319.463 GB/s
+Threads per block: 256
+              Mean: 0.204 ms
+Standard deviation: 0.001 ms
+             FLOPs: 58912577.349
+         Bandwidth: 237.026 GB/s
+Threads per block: 512
+              Mean: 0.193 ms
+Standard deviation: 0.001 ms
+             FLOPs: 62164650.942
+         Bandwidth: 250.110 GB/s
+Threads per block: 1024
+              Mean: 0.447 ms
+Standard deviation: 0.001 ms
+             FLOPs: 26843502.625
+         Bandwidth: 108.001 GB/s
+-------------- GPU. One warp per row: ---------------
+Threads per block: 32
+              Mean: 0.111 ms
+Standard deviation: 0.001 ms
+             FLOPs: 107645406.836
+         Bandwidth: 433.095 GB/s
+Threads per block: 64
+              Mean: 0.104 ms
+Standard deviation: 0.001 ms
+             FLOPs: 115047352.977
+         Bandwidth: 462.875 GB/s
+Threads per block: 128
+              Mean: 0.105 ms
+Standard deviation: 0.001 ms
+             FLOPs: 114597069.635
+         Bandwidth: 461.064 GB/s
+Threads per block: 256
+              Mean: 0.107 ms
+Standard deviation: 0.001 ms
+             FLOPs: 111754011.577
+         Bandwidth: 449.625 GB/s
+Threads per block: 512
+              Mean: 0.105 ms
+Standard deviation: 0.001 ms
+             FLOPs: 114373247.153
+         Bandwidth: 460.163 GB/s
+Threads per block: 1024
+              Mean: 0.110 ms
+Standard deviation: 0.001 ms
+             FLOPs: 109150235.960
+         Bandwidth: 439.149 GB/s
